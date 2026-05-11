@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conference Synopses</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --card: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --accent: #58a6ff;
+      --accent2: #1f6feb;
+      --tag-bg: #1f2937;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    header {
+      text-align: center;
+      padding: 3rem 1rem 1.5rem;
+      background: linear-gradient(180deg, #0d1117 0%, #161b22 100%);
+    }
+
+    header h1 {
+      font-size: 2.4rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 0.5rem;
+    }
+
+    header p {
+      color: var(--muted);
+      font-size: 1.05rem;
+      max-width: 650px;
+      margin: 0 auto;
+    }
+
+    .tab-nav {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 1.5rem 1rem 0;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, #161b22 0%, #0d1117 100%);
+    }
+
+    .tab-btn {
+      padding: 0.65rem 1.5rem;
+      border: 1px solid var(--border);
+      border-bottom: none;
+      border-radius: 8px 8px 0 0;
+      background: transparent;
+      color: var(--muted);
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      bottom: -1px;
+    }
+
+    .tab-btn:hover {
+      color: var(--text);
+      background: var(--card);
+    }
+
+    .tab-btn.active {
+      color: var(--accent);
+      background: var(--bg);
+      border-color: var(--accent);
+      border-bottom: 1px solid var(--bg);
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .conference-section {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1rem 3rem;
+    }
+
+    .conference-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .conference-header h2 {
+      font-size: 1.6rem;
+      font-weight: 700;
+    }
+
+    .conference-header h2 span { color: var(--accent); }
+
+    .conference-badge {
+      display: inline-block;
+      padding: 0.25rem 0.7rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      background: var(--accent2);
+      color: #fff;
+      white-space: nowrap;
+    }
+
+    .category-header {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--text);
+      margin: 2.5rem 0 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .video-card {
+      display: flex;
+      gap: 1.5rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      transition: border-color 0.2s;
+    }
+
+    .video-card:hover { border-color: var(--accent); }
+
+    .video-embed {
+      flex: 0 0 480px;
+      min-height: 270px;
+    }
+
+    .video-embed iframe {
+      width: 100%;
+      height: 100%;
+      min-height: 270px;
+      border-radius: 8px;
+      border: none;
+    }
+
+    .video-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .video-info h3 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      line-height: 1.4;
+    }
+
+    .video-info h3 a {
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .video-info h3 a:hover { color: var(--accent); }
+
+    .video-info .summary {
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.65;
+    }
+
+    .meta {
+      margin-top: auto;
+      padding-top: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+      flex-wrap: wrap;
+    }
+
+    .meta .date {
+      background: var(--tag-bg);
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
+    }
+
+    .meta .category-tag {
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    footer a { color: var(--accent); }
+
+    @media (max-width: 900px) {
+      .video-card { flex-direction: column; }
+      .video-embed { flex: none; width: 100%; }
+      .video-embed iframe { aspect-ratio: 16/9; min-height: auto; height: auto; }
+      .tab-btn { padding: 0.5rem 0.8rem; font-size: 0.82rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Conference Synopses</h1>
+  <p>AI-generated summaries from top tech conferences, built from full video transcripts.</p>
+</header>
+
+<nav class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab('decode', this)">DE{CODE} 2026</button>
+  <button class="tab-btn" onclick="switchTab('wca', this)">WordCamp Asia 2026</button>
+</nav>
+
+<div id="tab-decode" class="tab-content active">
+<!-- ===================== DE{CODE} 2026 ===================== -->
+<section class="conference-section">
+  <div class="conference-header">
+    <h2>DE{<span>CODE</span>} 2026 <small style="font-weight:400;color:var(--muted);font-size:0.85rem;margin-left:0.3rem;">by WP Engine</small></h2>
+    <span class="conference-badge">15 sessions &middot; May 6, 2026</span>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/nL4Zo7VrNcE" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=nL4Zo7VrNcE" target="_blank">Shape What's Next: Leading in an Era of Human and AI Experience</a></h3>
+      <p class="summary">Heather Brunner, CEO of WP Engine, opens DE{CODE} 2026 by mapping the dramatic transformation the web has undergone in the past 18 months. The web now operates as two parallel realities: the traditional human experience built on design, performance, and compelling content, and a second web navigated by machines and AI models, where a brand either earns a citation or effectively doesn't exist. Organizations winning today are building for both simultaneously. WP Engine's role has evolved accordingly: structuring content so machines can understand and cite it, driving site speed so AI agents don't skip past, and managing security to allow good bot traffic through while blocking the bad. Brunner emphasizes that AI cannot replace human judgment, relationships, or the voice that makes work meaningful. The sessions were designed with 30% context and 70% actionable how-to content.</p>
+      <div class="meta"><span class="date">May 6, 2026</span></div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/QfbJ9h2O_GU" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=QfbJ9h2O_GU" target="_blank">How Headless Gives You an AI Head-Start</a></h3>
+      <p class="summary">Fran Agulto and Teresa Gobble demonstrate why headless WordPress architecture is a prerequisite for modern AI integration. By decoupling content management from presentation, headless exposes structured data through APIs like REST and GraphQL, creating clean feeds for LLMs, vector search engines, recommendation systems, and autonomous agents. The session features a live demo of a custom AI chatbot built inside WP Admin, connected to WP Engine's Smart Search AI via Model Context Protocol (MCP), with a Next.js orchestration layer and OpenAI tool calling over server-sent events. Key trends explored include the rise of agentic workflows as the defining shift of 2026, the move from prompt engineering to context engineering, model decentralization through AI gateways, and the emergence of sovereign small language models (SLMs) trained on proprietary industry data for privacy and precision.</p>
+      <div class="meta"><span class="date">May 6, 2026</span></div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/VRVqsr1-c6Y" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=VRVqsr1-c6Y" target="_blank">Visible, Credible, Recommended: What Your Brand Needs to Earn in AI Search</a></h3>
+      <p class="summary">Liza Adams, AI advisor and growth strategist, demonstrates how AI forms an opinion about brands before humans do. Using a B2B buyer prompt across ChatGPT, Microsoft Copilot, and Google AI Mode, she reveals that each AI returns different shortlists, scores, and descriptions of the same vendors. The experiment highlights three things every brand must now earn: visibility (being present in AI results), credibility (positive sentiment and trust signals), and recommendation (being cited for the right use cases). Adams outlines four practical levers: creating content that anticipates buyer questions, positioning clearly for ideal and non-ideal scenarios, investing in PR and earned voices in communities and analyst reports, and optimizing website experiences for both humans and machines. Her closing advice: stop chasing the algorithm and focus on being genuinely helpful.</p>
+      <div class="meta"><span class="date">May 6, 2026</span></div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/YaIEdEj4Wuw" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=YaIEdEj4Wuw" target="_blank">A New Era: The Future of the Intelligent Web</a></h3>
+      <p class="summary">Thierry Muller, VP of Product at WP Engine, charts the transition from the classic web to the intelligent web, guided by a principle: human first, AI native. He breaks down the content lifecycle into creation, distribution, and consumption, showing how AI rewrites each stage, from agentic builders replacing manual content management to conversational interfaces becoming the new browsing paradigm. Four friction points emerge: creation paralysis from siloed AI tools, the discovery black hole as search yields to AI summaries, agentic incompatibility where most sites are invisible to AI agents, and the experience gap as users expect richer interactions. The solution lies in decoupled AI infrastructure with cloud-based LLMs and vector databases alongside existing platforms. WP Engine announces plans to expand Smart Search AI beyond its own hosting to keep open-source software relevant.</p>
+      <div class="meta"><span class="date">May 6, 2026</span></div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/j7QWnp6xOFs" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=j7QWnp6xOFs" target="_blank">A New Agency Service Model: Is Your Client's Brand AI-Ready?</a></h3>
+      <p class="summary">A panel featuring leaders from Bluetext, Fueled, WebDev Studios, and Graybox explores how agencies must transform for the AI era. They introduce a five-pillar AI-ready brand framework covering infrastructure, security and traffic governance, data and content architecture, search and discovery, and strategic readiness. The central shift: agencies must move from optimizing for clicks to optimizing for citations in AI platforms. AI visibility audits are emerging as a core service — genuine diagnostic tools that surface findings with actionable roadmaps. The panelists stress that agencies already possess the expertise since structured data, semantic markup, and FAQ schema are familiar territory. Agencies that proactively bring these conversations to clients now, before clients discover their brand is invisible in AI search, will hold a significant competitive advantage.</p>
+      <div class="meta"><span class="date">May 6, 2026</span></div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/o6wIL0uMbaw" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=o6wIL0uMbaw" target="_blank">Fewer Clicks, Higher Stakes: How to Turn AI-Driven Traffic into Real Conversions</a></h3>
+      <p class="summary">Shane Daly and Luke Patterson tackle the conversion challenge: with AI answering questions before users click, the humans who do arrive are high-intent visitors who must convert at a much higher rate. They demonstrate three approaches enhanced by AI: semantic search powered by vectorization that understands intent beyond keywords, AI-powered content recommendations using vectorized fields for contextual suggestions, and conversational chatbot interfaces grounded in site content via RAG and MCP architectures. The highlight is a live no-code demo where a chatbot is set up in six minutes using OpenAI's Agent Builder integrated with WP Engine's Smart Search AI MCP server. The MCP connection transforms a static WordPress site into a live, queryable knowledge base for any AI agent, keeping responses grounded in actual site content rather than generic LLM knowledge.</p>
+      <div class="meta"><span class="date">May 6, 2026</span></div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/w0oMGzkEcao" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=w0oMGzkEcao" target="_blank">The Marketer's Playbook for the Intelligent Web</a></h3>
+      <p class="summary">Darcy Kurtz, CMO of WP Engine, and James Baldacchino of Ellipsis discuss how marketers must adapt as over 50% of searches now end without a click. Visitors from LLMs convert faster because they've already done their research inside the AI. The challenge is that attribution is increasingly difficult, and marketers must move beyond direct-click attribution and learn to read a mosaic from multiple data signals. Three pillars form an AI-ready website foundation: a flexible composable architecture so content isn't locked into one system, structured content with metadata and semantic embeddings via vector databases that surface content for related queries without exact keyword matches, and a fast scalable delivery layer to handle bot traffic. Their advice: stop chasing volatile optimizations and focus on creating useful content structured for both machines and humans.</p>
+      <div class="meta"><span class="date">May 6, 2026</span></div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/2gqkgc5TI8c" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=2gqkgc5TI8c" target="_blank">A New Era: A First Look at What's Next at WP Engine</a></h3>
+      <p class="summary">Ramadass Prabhakar, CTO of WP Engine, presents solutions to four fundamental problems of the AI era: creation paralysis, the discovery black hole, agentic incompatibility, and the AI experience gap. Live demos showcase new tooling: ACF 6.8 with Abilities API integration lets Claude Code create custom post types, taxonomies, and field groups from natural language, while automatic schema.org JSON-LD makes content discoverable by AI systems. Smart Search AI demonstrates semantic search that understands user intent even with misspellings, plus AI-powered content recommendations using vectorized fields. A turnkey chatbot is configured in seven minutes using OpenAI's Agent Builder connected via MCP. The session also covers Global Edge Security, which stopped over 75 billion malicious requests in 2025, with new traffic visibility dashboards and upcoming bot management controls.</p>
+      <div class="meta"><span class="date">May 6, 2026</span></div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/1LH5RFWSZYw" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=1LH5RFWSZYw" target="_blank">The ACF Update That Makes Your Content Machine-Readable</a></h3>
+      <p class="summary">Iain Poulson and Rob Stinson unpack ACF 6.8 and its role in making WordPress content readable by both humans and machines. The plugin, running on over 5 million sites, integrates with WordPress 6.9's Abilities API so AI agents can create custom post types, taxonomies, and field groups through natural language. In a live demo, a holiday property site is built from a CSV: Claude analyzes the data, suggests a data model, registers all fields, and imports 15 properties with full metadata — a process that would have taken hours manually. The release introduces native schema.org support with JSON-LD output, letting developers map ACF fields to schema attributes via a point-and-click UI so AI crawlers receive machine-readable data without custom code. Upcoming features include smart field suggestions and AI-powered content generation leveraging structured field data.</p>
+      <div class="meta"><span class="date">May 6, 2026</span></div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/6JZkgl_xqz0" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=6JZkgl_xqz0" target="_blank">Unlocking eCommerce Growth: Content as the AI Conversion Engine</a></h3>
+      <p class="summary">A panel with Keith Fafel (WP Engine), Taylor Lovett (829 Studios), and Tom Di Domenico (Amsive) explores how eCommerce must adapt to zero-click commerce, where AI agents initiate and sometimes complete purchases before a human visits a site. Content has become technical infrastructure, not just a marketing asset. AI-referred traffic converts at roughly 4.5x the rate of traditional search, but only if content is machine-readable. Immediate priorities include complete schema markup on all product pages, displaying maximum product attributes even if previously hidden, and building content around real customer questions. Open platforms like WordPress win through adaptability and data portability, allowing brands to broadcast into LLMs. On chatbots, the panel pushes back: customers prefer using their own LLM to interact with your site via MCP, making content optimization a better investment.</p>
+      <div class="meta"><span class="date">May 6, 2026</span></div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/DGPDefrOmhc" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=DGPDefrOmhc" target="_blank">The Chief Digital Officer Perspective: How ITP is Positioning For Growth in an AI-First Future</a></h3>
+      <p class="summary">Charlotte Cijffers, CDO at ITP Media Group (40+ brands including Arabian Business and Harper's Bazaar), shares how a major Middle Eastern media company is positioning for AI-era growth. Traffic from LLM citations is returning to their sites, a new discovery mode rather than a dead end. ITP's strategy rests on three pillars: authority through original reporting with proprietary data so AI identifies them as the source, structural clarity for LLMs balanced with editorial personality, and regional freshness where LLMs have knowledge gaps about MENA. The migration to WP Engine Newsroom delivered a 40% uplift in Core Web Vitals, boosting Google Discover visibility. Built-in publication checklists and live editing tools reclaimed roughly 30% of editorial time by eliminating repeat training. Cijffers emphasizes that transparency about AI usage is essential to maintaining trust.</p>
+      <div class="meta"><span class="date">May 6, 2026</span></div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/HfSDo0dvjdk" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=HfSDo0dvjdk" target="_blank">Practical Guide: Rebuilding Your Site in the AI World</a></h3>
+      <p class="summary">A panel from WP Engine, The Publisher Desk, and StrategiQ digs into why brands can rank first on Google yet remain invisible in Claude, ChatGPT, and Perplexity. Editorial and technical teams must work together closely: editors need to understand that content structure matters for AI consumption, while technical teams must grasp strategic intent behind content decisions. The key foundation is getting the data layer right — tight taxonomy, clear hierarchy, and disciplined propagation across the site so AI models don't encounter hard-to-interpret data. SEO fundamentals like sitemaps and server-side rendering remain essential because LLM crawlers are far less capable than Google at rendering JavaScript-heavy pages. Organizations should align on a sequenced roadmap and tackle items one at a time, since modern AI tooling enables teams to iterate in hours rather than weeks.</p>
+      <div class="meta"><span class="date">May 6, 2026</span></div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/HuzkurnfSso" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=HuzkurnfSso" target="_blank">The Next Wave: What the Data Reveals About Agencies Winning with AI</a></h3>
+      <p class="summary">Nicholas Petroski of Promethean Research presents findings from 214 agency professionals. 73% believe optimizing for AI will be as pivotal as the shift to mobile-responsive design. AI leaders — about 26% of agencies — are three times more likely to invest in AI partnerships and four times more likely to deliver measurable efficiencies. The laggards, about 15%, take no action at all. AI coding saw a massive step-up in late 2025 as tools like Claude Code became impossible to ignore, catching up in months to where copywriting was a year earlier. Net margins dropped from 15% to 13% due to pricing pressure, partially offset by AI efficiencies. The future agency will be smaller, staffed by senior talent augmented by AI and specialist contractors, with hyper-specialization and strategic advisory replacing generic execution. Entry-level hiring has been flat for two consecutive years.</p>
+      <div class="meta"><span class="date">May 6, 2026</span></div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/I5zzcC9DKwU" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=I5zzcC9DKwU" target="_blank">WordPress 7.0 Is Almost Here. This Is What It Will Actually Unlock</a></h3>
+      <p class="summary">Weston Ruter and John Parris, engineers at WP Engine, detail two major features in WordPress 6.9 and 7.0. First, real-time collaborative editing based on YJS, a conflict-free replicated data type library that lets multiple users and AI agents edit the same post simultaneously with live cursor tracking and automatic conflict resolution. WP Engine ships WebSocket transport to make this practical at scale. Second, a three-part AI infrastructure stack: the Abilities API exposes site functionality to AI agents via PHP, JavaScript, REST, CLI, and MCP; the Connectors API centralizes API keys for providers like Anthropic, Google, and OpenAI; and the PHP AI Client offers a unified interface for generating text, images, and content across any provider. A hackathon demo shows a plugin builder that generates, installs, and activates a WordPress plugin from a plain-language prompt within the admin.</p>
+      <div class="meta"><span class="date">May 6, 2026</span></div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/MNqqTwtjZ3E" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=MNqqTwtjZ3E" target="_blank">Human Value in an Automated World: How Agencies Stay Relevant</a></h3>
+      <p class="summary">A candid panel with leaders from WhiteLabel IQ, Americaneagle.com, LT, and Elementary Digital tackles what agencies charge for when AI commoditizes production. The consensus: reclaimed time should become opportunity, not just margin — redirected into deeper client context, experimentation, and strategic road-mapping. Transparency about AI usage builds trust, as clients know agencies use AI and want to understand how, not whether. Agencies should pivot toward strategic partnership while they still have the cash flow and relationships to fund the move. On security, AI has made bot mitigation a nightmare with sites seeing thousands of unauthorized login attempts within hours of launch. The panelists agree that human value — relationships, judgment, earned authority, and trust — remains the most irreplaceable asset. Start the transformation today, because waiting only widens the gap.</p>
+      <div class="meta"><span class="date">May 6, 2026</span></div>
+    </div>
+  </div>
+
+</section>
+</div>
+
+<div id="tab-wca" class="tab-content">
+<!-- ===================== WordCamp Asia 2026 ===================== -->
+<section class="conference-section">
+  <div class="conference-header">
+    <h2>WordCamp Asia 2026</h2>
+    <span class="conference-badge">41 sessions &middot; Apr 2026</span>
+  </div>
+
+  <h3 class="category-header">AI &amp; WordPress</h3>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/-mFbUueL0NE" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=-mFbUueL0NE" target="_blank">WordPress and AI — James LePage</a></h3>
+      <p class="summary">The Core AI co-lead presents WordPress’s AI vision. The web is a beautiful graph of entities; AI is changing the consumption model (humans → AI-mediated → fully delegated agents). WordPress 7.0 ships three building blocks: Abilities API (tell AI what your site can do), WP AI Client (provider-agnostic AI access), and MCP Adapter (expose capabilities to external agents). He introduces “site delegates” — AI agents representing your site to visiting agents — calling it “democratizing representation.” The open web’s future depends on what gets built now, and WordPress’s 43% share makes it the decisive player.</p>
+      <div class="meta"><span class="date">Apr 2026</span><span class="category-tag" style="background:#8b5cf6">AI &amp; WordPress</span></div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/vJJ7vHKnB0M" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=vJJ7vHKnB0M" target="_blank">Hooks, Filters, and Now Context: MCPs as the Hooks of the AI Era — Miriam Schwab</a></h3>
+      <p class="summary">Miriam draws a direct line from WordPress’s hooks/filters system to MCPs (Model Context Protocols). Just as hooks created an explosive plugin ecosystem without gatekeeping — Elementor, WooCommerce, thousands of add-ons all building without permission — MCPs are the open extensibility layer for AI. Closed AI platforms are walled gardens where everyone reinvents the wheel in isolation. WordPress’s 20-year culture of sharing code, learning from each other, and building on others’ work is a compounding advantage that can’t be manufactured.</p>
+      <div class="meta"><span class="date">Apr 2026</span><span class="category-tag" style="background:#8b5cf6">AI &amp; WordPress</span></div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/LzMfDlkn3wA" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=LzMfDlkn3wA" target="_blank">Build for What Comes Next — James Giroux</a></h3>
+      <p class="summary">A WordPress VIP veteran shares how enterprise problems are fundamentally different — not bigger, but materially different. He demos “adaptive websites” built with RT Camp and Salesforce: an AI agent constructs pages in real-time from WordPress content synced to Salesforce Data 360, doing progressive deanonymization through natural conversation instead of forms. His message: stop proving WordPress features and start proving what WordPress makes possible. AI makes WordPress more valuable, not less.</p>
+      <div class="meta"><span class="date">Apr 2026</span><span class="category-tag" style="background:#8b5cf6">AI &amp; WordPress</span></div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/wp7au7nkoUM" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=wp7au7nkoUM" target="_blank">AI Identity Governance — Anukasha Singh</a></h3>
+      <p class="summary">With WordPress 7.0&#x27;s Abilities API, 43% of the web will connect to AI natively. But AI agents are non-human identities — they never clock out, act at machine speed, and don’t need passwords. Without governance, a malicious agent can befriend your chatbot and delete content. Anukasha argues every agent needs role-scoped abilities (an SEO agent shouldn’t manage users), default-deny permissions, and full action audit logs. This is the security framework WordPress must build before AI agents run wild across millions of sites.</p>
+      <div class="meta"><span class="date">Apr 2026</span><span class="category-tag" style="background:#8b5cf6">AI &amp; WordPress</span></div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/5PwEj_O8a9Y" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=5PwEj_O8a9Y" target="_blank">Lost &amp; Found in AI Wonderland — Nirav Mehta</a></h3>
+      <p class="summary">Store Apps’ founder shares brutally honest AI experiments: a Figma-to-React redesign cut from 9 months to 3 — then bug reports flooded in because “speed ≠ direction.” Marketing produced 5× content with AI, but the real danger is “mediocre content that looks acceptable at unprecedented scale.” A customer replied “stop this AI junk” to AI-generated insights. He maps the Gartner hype cycle to WordPress agencies, warns the effort-impact matrix breaks with AI (we underestimate effort, overestimate impact), and recommends three gears: autopilot-with-review, co-pilot, and AI-as-advisor — but never driverless.</p>
+      <div class="meta"><span class="date">Apr 2026</span><span class="category-tag" style="background:#8b5cf6">AI &amp; WordPress</span></div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/apMZ76qwG7I" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=apMZ76qwG7I" target="_blank">One Person Maintains 30+ Plugins with AI — Fumiki Takahashi</a></h3>
+      <p class="summary">Japan’s CTO of Tarosky shows how AI agents (especially Claude Code) let him solo-maintain 30+ WordPress plugins. He distinguishes copilots (assistants) from agents (autonomous workers), then demos standardizing all repos at once: comparing his plugins to Google’s Site Kit, applying best practices, adding PHPUnit tests across 4 plugins simultaneously in minutes. He also automates GitHub issue triage with AI and argues Japan’s demographic crisis (losing 1M people/year) makes AI agents essential, not optional.</p>
+      <div class="meta"><span class="date">Apr 2026</span><span class="category-tag" style="background:#8b5cf6">AI &amp; WordPress</span></div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/vK9OejFWgB4" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=vK9OejFWgB4" target="_blank">WordPress Playground + AI: Autonomous Testing Pipelines — Fellyph Cintra</a></h3>
+      <p class="summary">WordPress Playground is a browser-based sandbox for running WordPress — not just a local environment but an entire ecosystem. Fellyph demonstrates blueprints for one-click PR testing, CLI commands for different PHP/WP versions, and new agent skills that let AI (Claude, Gemini, Copilot) create test environments and demos via conversation. He shows an autonomous pipeline where multiple AI agents triage issues, write code, run tests, and loop back on failures — all powered by Playground, GitHub Actions, and MCP servers.</p>
+      <div class="meta"><span class="date">Apr 2026</span><span class="category-tag" style="background:#8b5cf6">AI &amp; WordPress</span></div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/GlsVjF-nAro" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=GlsVjF-nAro" target="_blank">Panel: How AI is Restructuring Marketing Methods</a></h3>
+      <p class="summary">Five marketers share practical AI applications: a 368-point AI review checklist cutting editorial time from 9 hours to 10 minutes; AI-criticized proposals with higher win rates; a video editing pipeline in Claude Code (6/10 outputs usable); and in-house SEO tools replacing engineering dependencies. Critical lessons: AI gave wrong WordPress security advice, couldn’t read JS-rendered title tags, and mistranslated Italian CTAs. The consensus: you can’t outsource human judgment. AI conversions from chat are vastly higher than traditional search, but garbage in still equals garbage out.</p>
+      <div class="meta"><span class="date">Apr 2026</span><span class="category-tag" style="background:#8b5cf6">AI &amp; WordPress</span></div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/cgRYv2eGeDI" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=cgRYv2eGeDI" target="_blank">WordPress Speed Build Competition</a></h3>
+      <p class="summary">Two developers race to build a real WordPress site in 30 minutes. Craig goes purely manual with Full Site Editing; AJ uses Claude for AI-assisted building. Craig delivers a polished layout with split navigation, hero sections, and testimonials. AJ experiments with AI-generated blocks and pulls off a working carousel via AI — but hits errors along the way. The audience declares a draw. It’s an entertaining showcase of where AI helps (carousels in minutes) and where it still stumbles (unreliable in live pressure).</p>
+      <div class="meta"><span class="date">Apr 2026</span><span class="category-tag" style="background:#8b5cf6">AI &amp; WordPress</span></div>
+    </div>
+  </div>
+
+
+  <h3 class="category-header">WordPress Core &amp; Releases</h3>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/R8vTFlWrZw4" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=R8vTFlWrZw4" target="_blank">Ten Times the Value — Jonathan Desrosiers</a></h3>
+      <p class="summary">A WordPress core committer applies Carl Fogel’s “automation ratio” to the project: automating a task is worth 10× the manual effort — and with AI, possibly 100× or 1000×. WordPress has 459 GitHub Actions files across 113 repos performing nearly 3,000 steps. Running the core test suite manually would take one person 60+ non-stop days. He frames the project as a diamond: too few maintainers at the top, too hard to onboard at the bottom. Good automation widens both funnels without disadvantaging either group. AI is just the next form of automation — but beware blind trust.</p>
+      <div class="meta"><span class="date">Apr 2026</span><span class="category-tag" style="background:#059669">WordPress Core &amp; Releases</span></div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/BFxdBBxd_Wc" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=BFxdBBxd_Wc" target="_blank">The Making of a WordPress Release — Panel Discussion</a></h3>
+      <p class="summary">Core committers and release squad members detail how WordPress releases are built. 7.0 has ~875 contributors so far. The panel explains the alpha→beta→RC→final pipeline, why features get “punted” (always readiness, never dislike), and why 7.0&#x27;s real-time collaboration was delayed — the data storage layer for collaborative editing needed a new database table, and getting that schema right the first time matters more than hitting a conference deadline. They emphasize automation (459 GitHub Actions files), the need for more beta testers, and that contributor teams should self-organize independently of release cycles.</p>
+      <div class="meta"><span class="date">Apr 2026</span><span class="category-tag" style="background:#059669">WordPress Core &amp; Releases</span></div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/iQXHTADD-fI" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=iQXHTADD-fI" target="_blank">Beyond the Guidelines — Luke Carbis</a></h3>
+      <p class="summary">A WordPress plugin team reviewer proposes three changes to the plugin directory. First, a generative AI disclosure system (5 levels from “no AI” to “fully vibe-coded”) shown on plugin pages — submissions have jumped from 200/week to 500-600/week since AI. Second, addressing dark patterns: pre-checked opt-in boxes, plugins hijacking Site Health or the dashboard news widget, and multi-step deactivation harassment. Third, an “unknown sources” feature letting users install plugins from GitHub URLs, eventually synced to WordPress.org accounts — easing the review queue while giving solo developers a simpler path.</p>
+      <div class="meta"><span class="date">Apr 2026</span><span class="category-tag" style="background:#059669">WordPress Core &amp; Releases</span></div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/o21jmF7AAl0" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=o21jmF7AAl0" target="_blank">From Static to Dynamic: Mastering the Interactivity API — Ryan Welcher</a></h3>
+      <p class="summary">A deep technical dive into WordPress’s Interactivity API — a standardized way to add front-end interactivity to blocks, replacing ad-hoc jQuery/React approaches. Built on Preact (7KB), HTML directives, and PHP server-side rendering, it enables reactive UIs, cross-block communication (e.g., add-to-cart talking to shopping cart), and client-side navigation with near-instant page transitions. Key advantage: one tiny JS library ships to the browser instead of multiple competing libraries, and you get 20 years of WordPress PHP APIs for free.</p>
+      <div class="meta"><span class="date">Apr 2026</span><span class="category-tag" style="background:#059669">WordPress Core &amp; Releases</span></div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/eBqdVaHChCo" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=eBqdVaHChCo" target="_blank">Parsing HTML Without Pain — Hardik Thakkar</a></h3>
+      <p class="summary">WordPress has had a built-in HTML API since 6.2, yet most developers still reach for regex. The Tag Processor scans tags linearly (no DOM tree, no memory overhead), lets you query/set attributes safely, and never breaks your HTML. The HTML Processor (6.4+) adds structure awareness with breadcrumb navigation for parent-child relationships. Real-world examples: adding lazy loading/fetch-priority to images, replacing YouTube embeds with privacy-friendly nocookie URLs, injecting CSP nonces into inline scripts, and wiring Interactivity API directives — all server-side, zero layout shift.</p>
+      <div class="meta"><span class="date">Apr 2026</span><span class="category-tag" style="background:#059669">WordPress Core &amp; Releases</span></div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/Ad4tM-CDEUc" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=Ad4tM-CDEUc" target="_blank">Closing Keynote with Q&amp;A — Matt Mullenweg (via panel)</a></h3>
+      <p class="summary">Matt couldn’t attend in person but delivered a remote message. The session announced WordCamp India as a fourth annual flagship event. A panel of contributors fielded audience questions on WordPress’s future, with Matt responding in writing. Topics ranged from community governance to the project’s direction, with answers read dramatically on stage by a volunteer.</p>
+      <div class="meta"><span class="date">Apr 2026</span><span class="category-tag" style="background:#059669">WordPress Core &amp; Releases</span></div>
+    </div>
+  </div>
+
+
+  <h3 class="category-header">Development &amp; Technical</h3>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/FwI3qy1uo9g" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=FwI3qy1uo9g" target="_blank">Modern Content Architecture in WordPress — Łukasz Wilczak</a></h3>
+      <p class="summary">Custom Content Types (CCTs) — structured data in dedicated database tables instead of wp_posts/wp_postmeta — deliver dramatic performance gains. Łukasz benchmarked 300,000 records: classic CPT + ACF grew the DB to 72MB with 1+ second filtered queries; CCTs kept the DB at ~6MB with sub-100ms queries even faster than single article loads. WooCommerce’s High-Performance Order Storage is the same pattern. The rule: use CCTs for admin-only/high-volume data without front-end taxonomy needs; keep CPTs when you need hooks, taxonomies, and plugin interop.</p>
+      <div class="meta"><span class="date">Apr 2026</span><span class="category-tag" style="background:#d97706">Development &amp; Technical</span></div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/7123MPu-KOU" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=7123MPu-KOU" target="_blank">Schema Sharing Makes Web Forms Sustainable — Takayuki Miyoshi</a></h3>
+      <p class="summary">The creator of Contact Form 7 (maintained for 20 years) explains why traditional forms break in decoupled architecture: when field creation and data reception live on separate servers, the receiver can’t validate because it doesn’t know the fields. His solution — “schema-woven validation” — shares a JSON validation schema across servers, implemented in CF7 four years ago with 24 rule types. Available as npm and PHP packages. Bombshell: CF7 is now in feature freeze (bug fixes only); the successor, Contactable.io, launches in 2028.</p>
+      <div class="meta"><span class="date">Apr 2026</span><span class="category-tag" style="background:#d97706">Development &amp; Technical</span></div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/jtEzho1dPgQ" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=jtEzho1dPgQ" target="_blank">Report Only to Full Protection: Content Security Policy — Suman Basuli</a></h3>
+      <p class="summary">CSP is the “bouncer” blocking unauthorized scripts, styles, and connections. Suman live-demos the iterative process: override response headers locally in Chrome DevTools, start with default-src: none (everything breaks), then progressively allow self, specific domains, and nonces for inline scripts. Move to Content-Security-Policy-Report-Only with a reporting URI to catch violations in production without blocking users. Once clean, flip to enforcement — but keep the reporting URI active because future YouTube embeds or new services will break silently without it.</p>
+      <div class="meta"><span class="date">Apr 2026</span><span class="category-tag" style="background:#d97706">Development &amp; Technical</span></div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/U8QxxnW9ueE" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=U8QxxnW9ueE" target="_blank">From Chaos to Clarity: Scaling Teams with Block Theme Standards — JC Palmes</a></h3>
+      <p class="summary">WebDev Studios’ principal tech manager argues WordPress teams don’t have a tooling problem — they have a clarity problem. When two engineers solve the same layout three different ways (custom block, pattern, template override), all pass QA but none are compatible. The fix: treat theme.json as a contract, patterns as locked decisions, and standardize setup to one command (composer run theme-setup). He demos WSBT (a deliberately boring starter theme) and Theme Switcher Pro — migrating Boise State University page-by-page from a hybrid theme to FSE without breaking anything.</p>
+      <div class="meta"><span class="date">Apr 2026</span><span class="category-tag" style="background:#d97706">Development &amp; Technical</span></div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/kU26GtjG8bY" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=kU26GtjG8bY" target="_blank">The Art of Integrations — Malay Ladu</a></h3>
+      <p class="summary">Using a restaurant analogy, Malay explains that adding systems without connecting them creates complexity, not solutions. He covers APIs vs. webhooks, designing in layers (core product → integration layer → external systems), handling failures with retries and queues, async processing, caching strategies, and security. Key insight: “Does it integrate with X?” is the question that determines buying decisions. He closes by pointing to Abilities APIs as the future — letting AI interact with your WordPress products directly.</p>
+      <div class="meta"><span class="date">Apr 2026</span><span class="category-tag" style="background:#d97706">Development &amp; Technical</span></div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/AHcuvx6jllA" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=AHcuvx6jllA" target="_blank">From Reactive to Proactive: Modern Observability — Mathieu Lamiot</a></h3>
+      <p class="summary">Move beyond error_log debugging. Three tools: Sentry/GlitchTip for automated error monitoring with Slack alerts (just install one WordPress plugin); Metabase for database-backed alerting on silent failures (orders dropping, bot attacks, unexpected payment methods); BackstopJS for automated visual regression testing after plugin updates. The AI connection: observability lets AI agents work more autonomously — if you can detect regressions automatically, you can let AI move faster without manual approval bottlenecks.</p>
+      <div class="meta"><span class="date">Apr 2026</span><span class="category-tag" style="background:#d97706">Development &amp; Technical</span></div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/ij7rRolIDiU" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=ij7rRolIDiU" target="_blank">The Invisible Gotchas of WP Translation — Leonardo Losoviz</a></h3>
+      <p class="summary">A comprehensive checklist for multilingual WordPress: choose your translation plugin carefully (Polylang, WPML, TranslatePress, Weglot each have different compatibility requirements), verify RTL theme support including padding/alignment flips, configure ACF meta fields as translate vs. copy vs. reference-replace, audit for duplicate taxonomy tags across languages, translate entities in dependency order (users → taxonomies → media → pages → posts → menus), and validate in both the editor AND front-end. Pro tip: run Better Search Replace first to normalize all URLs before translating.</p>
+      <div class="meta"><span class="date">Apr 2026</span><span class="category-tag" style="background:#d97706">Development &amp; Technical</span></div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/lLAmQF0GiK0" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=lLAmQF0GiK0" target="_blank">Design That Outlives the Build — Craig Gomes</a></h3>
+      <p class="summary">Pixel Wise’s CEO argues most websites don’t age well because they’re designed for launch, not for life. The fix: think in systems, not pages. Use reusable components, shared color/typography tokens via WordPress’s FSE system, and template patterns with multiple variations. Content must drive design — not the other way around. Find the “Goldilocks zone” of flexibility: too rigid and clients can’t update; too flexible and they’ll break everything. Stop overengineering with unnecessary plugins. Simple systems last longer, ship cleaner, and scale better.</p>
+      <div class="meta"><span class="date">Apr 2026</span><span class="category-tag" style="background:#d97706">Development &amp; Technical</span></div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/HPTMbDU7xco" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=HPTMbDU7xco" target="_blank">Code Quality from a User Perspective — Sreeja Vijayan</a></h3>
+      <p class="summary">Bug-free development doesn’t come from clean code alone — it comes from thinking like non-technical users. CMS platforms like WordPress are handled by marketing teams who paste formatted text from Word (breaking CSS), upload huge unoptimized images (killing performance), ignore character limits (breaking layouts), and open sites on unexpected screen sizes. Before building any feature, ask: who will use it, how will they use it, and what can go wrong? If users can break it, they will. Quality starts with clear requirements, not at QA.</p>
+      <div class="meta"><span class="date">Apr 2026</span><span class="category-tag" style="background:#d97706">Development &amp; Technical</span></div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/twHJZ9u3axY" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=twHJZ9u3axY" target="_blank">A WordPress.org Data Engineering Starter Project — Mahangu Weerasinghe</a></h3>
+      <p class="summary">Automattic’s data engineer shows how to extract, transform, and load WordPress.org’s 60,000+ plugin/theme dataset using open-source tools: Meltano (ETL framework with a custom tap-wordpress-org extractor), DuckDB (fast analytical database), and Jupyter notebooks for querying. A make quick-start command pulls sample data in minutes. The starter project handles incremental fetching (only new/changed records), resets, and CSV exports. LLMs are “extremely good at Python” — Claude Code can extend the pipeline with charts, dashboards, or scheduled production runs via Airflow.</p>
+      <div class="meta"><span class="date">Apr 2026</span><span class="category-tag" style="background:#d97706">Development &amp; Technical</span></div>
+    </div>
+  </div>
+
+
+  <h3 class="category-header">SEO &amp; Marketing</h3>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/PMRBGQBuIQM" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=PMRBGQBuIQM" target="_blank">Entity First Optimization — Adeline Dahal</a></h3>
+      <p class="summary">Keywords don’t equal understanding — search engines now map real-world entities, not just strings. Adeline presents a 6-step blueprint: map primary/supporting entities, structure WordPress content with proper H-tags and clean slugs, add JSON-LD schema markup (via Yoast or manually), build an internal linking knowledge graph connecting supporting pages to primary pages, optimize media metadata (alt text, captions, video embeds), and validate with Google Rich Results Test and Schema.org validator. This matters now because AI overviews and generative search use structured entity data to surface results.</p>
+      <div class="meta"><span class="date">Apr 2026</span><span class="category-tag" style="background:#dc2626">SEO &amp; Marketing</span></div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/UUMDFuUmqRY" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=UUMDFuUmqRY" target="_blank">How to Sell WordPress: Know Who You’re Building For — Aviral Mittal</a></h3>
+      <p class="summary">Stop selling WordPress as technology. Instead, ask: who actually publishes on this site? 99% of the time it’s non-technical marketers who need to fix typos, launch campaigns, and manage SEO without filing Jira tickets. The real advantage is marketing autonomy and speed to market. Using Rory Sutherland’s “doorman policy” metaphor, Aviral argues the industry is over-optimizing for developer experience (automatic doors) while giving up the basics of publishing (the doorman). Sell the hospitality, not the engine.</p>
+      <div class="meta"><span class="date">Apr 2026</span><span class="category-tag" style="background:#dc2626">SEO &amp; Marketing</span></div>
+    </div>
+  </div>
+
+
+  <h3 class="category-header">Enterprise &amp; Business</h3>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/WUeytRYzngY" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=WUeytRYzngY" target="_blank">Enterprise WordPress Isn’t Just Bigger — Rahi Prajapati</a></h3>
+      <p class="summary">Enterprise WordPress isn’t defined by scale but by organizational complexity. Rahi outlines three mindset shifts: build for an organization (multiple competing stakeholders — marketing, IT, legal, security), build a connected ecosystem node (APIs, SSO, CRM, DAM integrations), and shift from flexibility to discipline (plugin vetting, compliance, strict governance). A funny story: activating one plugin required a one-month review. Enterprise WordPress now represents 55% of enterprises with 17% year-on-year growth.</p>
+      <div class="meta"><span class="date">Apr 2026</span><span class="category-tag" style="background:#2563eb">Enterprise &amp; Business</span></div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/Seu2D5dOzI4" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=Seu2D5dOzI4" target="_blank">How to Start an Enterprise WordPress Agency in 2027 — Rahul Bansal</a></h3>
+      <p class="summary">RT Camp’s founder shares 17 years of agency-building wisdom. Fundamentals: pick a niche (you only need 0.5% of WordPress’s market), hire your complementary set (people who know what you don’t), be opinionated, contribute to core, educate your clients openly, and go process-centric like McDonald’s. For enterprise: understand it’s “boss’s money” not personal money — buyers want security and reliability, not the cheapest price. AI is a tool (“applied AI”), not a sales pitch. Longest sales cycle: Google at 2.5 years.</p>
+      <div class="meta"><span class="date">Apr 2026</span><span class="category-tag" style="background:#2563eb">Enterprise &amp; Business</span></div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/rUyDCQkCdfU" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=rUyDCQkCdfU" target="_blank">Cross-Border Commerce from India — Abid Murshed</a></h3>
+      <p class="summary">A commerce leader explains why India is primed for cross-border e-commerce: 4th largest GDP, 45% of exports driven by SMBs, and a maturing domestic market. The core problem? Broken checkouts — no local payment methods, wrong currencies, no BNPL options. He offers a framework: understand how, when, and where buyers want to pay. He closes with three disruptive trends: agentic AI shopping via APIs, wallet interoperability (Project Nexus, Alipay+), and stablecoins poised to slash cross-border costs to under 1%.</p>
+      <div class="meta"><span class="date">Apr 2026</span><span class="category-tag" style="background:#2563eb">Enterprise &amp; Business</span></div>
+    </div>
+  </div>
+
+
+  <h3 class="category-header">Project Management &amp; Delivery</h3>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/O5IkBD19FE4" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=O5IkBD19FE4" target="_blank">Risk Management During Large Scale WP Migrations — Chirag Patel &amp; Mayur Keshwani</a></h3>
+      <p class="summary">Multidots project managers share a battle-tested migration framework from consolidating 16 websites into one WordPress multisite (500K+ posts, 27 business locations, zero downtime). Three risk categories: technical (data loss, legacy HTML→Gutenberg conversion, media breakage), SEO (broken redirects, missing schema, un-indexed sitemaps), and operational (content freeze frustration, scope creep, unrealistic timelines). Key takeaways: migrate in batches with validation after each round, use WP-CLI with WP_IMPORTING = true, keep the legacy system on standby as rollback, and involve editors from kickoff — not launch day.</p>
+      <div class="meta"><span class="date">Apr 2026</span><span class="category-tag" style="background:#7c3aed">Project Management &amp; Delivery</span></div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/AVgcMEPjvko" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=AVgcMEPjvko" target="_blank">Stop Guessing, Start Building — Nabin Jaiswal</a></h3>
+      <p class="summary">The co-founder of Codewing Solutions shares how his travel-tech product team escaped the “build everything” trap. They restructured GitHub issues with reproducible steps and customer data, created dedicated Slack channels for escalation, implemented Claude Code for PR reviews (with developer acknowledgment workflows), and adopted Kano analysis to categorize requests into must-have/performance/delighter/indifferent. The biggest change: communicating every release to customers — informing them when work starts, when it ships, and asking for feedback in their 2,300-member Facebook community.</p>
+      <div class="meta"><span class="date">Apr 2026</span><span class="category-tag" style="background:#7c3aed">Project Management &amp; Delivery</span></div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/M686IUFf2go" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=M686IUFf2go" target="_blank">Project Delivery: Between Plan A and Reality — Maitreyie Chavan</a></h3>
+      <p class="summary">JEDAM’s delivery lead identifies four invisible moments where projects silently derail. The “alignment illusion” at kickoff (everyone says yes but means different things) — fix with a dedicated assumption session. The “slow puncture” mid-project (small untracked requests accumulate into weeks of unplanned work) — fix with a visible trade-off tracker. The “context loss” when stakeholders change (decisions only lived in people’s heads) — fix with a shared decision log. And the “UAT surprise” at the end — fix by defining measurable acceptance criteria upfront, not subjective feelings.</p>
+      <div class="meta"><span class="date">Apr 2026</span><span class="category-tag" style="background:#7c3aed">Project Management &amp; Delivery</span></div>
+    </div>
+  </div>
+
+
+  <h3 class="category-header">Education</h3>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/ZrwP7KpZL3E" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=ZrwP7KpZL3E" target="_blank">Fireside Chat — Mary Hubbard &amp; Shilpa Shah</a></h3>
+      <p class="summary">Mary Hubbard discusses her journey from eBay Motors and Walmart to WooCommerce and now the WordPress project. Key themes: Campus Connect bringing WordPress to universities (18 schools, thousands of contribution hours), an AI microcredential program, and contributor pathways to improve onboarding. Her north star: WordPress as the default platform for the open AI-driven web. She urges the community to be vocal advocates, modernize dated pages (she redesigned one with Claude in 10 minutes), and take WordPress’s seat at the table on AI policy.</p>
+      <div class="meta"><span class="date">Apr 2026</span><span class="category-tag" style="background:#0891b2">Education</span></div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/WAyQY7JSO7w" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=WAyQY7JSO7w" target="_blank">Panel: Education Initiatives — Campus Connect, Credits &amp; Student Clubs</a></h3>
+      <p class="summary">Three interconnected programs are building WordPress’s next generation. Campus Connect (now an official event format) brings WordPress workshops directly to university campuses. Student Clubs keep the momentum going with ongoing peer-led study groups. WordPress Credits places students in 150-hour internships with the WordPress Foundation across 18 universities globally, mentored by vetted community members and certified by Matt Mullenweg himself. The chain: Campus Connect sparks interest → Student Clubs sustain it → Credits convert students into contributors. A facilitator training program for educators is in development.</p>
+      <div class="meta"><span class="date">Apr 2026</span><span class="category-tag" style="background:#0891b2">Education</span></div>
+    </div>
+  </div>
+
+
+  <h3 class="category-header">Community &amp; Culture</h3>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/2wRBaHdWRos" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=2wRBaHdWRos" target="_blank">Building WordPress Communities: The Ugandan Story — Stephen Dumba</a></h3>
+      <p class="summary">A high school teacher shares how Uganda built 9 WordPress meetups in a landlocked East African nation of 44 million. It started with one teacher discovering WordPress at WordCamp Kampala 2017, dragging colleagues to the next one, and running lab sessions. Now they have “each one teach one” Tuesday Zoom sessions, a “1000 WordPress Ninjas” school outreach program, student website competitions, WordPress integrated into the national high school ICT curriculum, Campus Connect events at universities, and plans for WordCamp Uganda 2027 celebrating 10 years of WordPress in the country.</p>
+      <div class="meta"><span class="date">Apr 2026</span><span class="category-tag" style="background:#e11d48">Community &amp; Culture</span></div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/hUN6xyKzMKA" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=hUN6xyKzMKA" target="_blank">From Mumbai to WordPress: How Community Shaped My Career Change — Kotaro Kitamura</a></h3>
+      <p class="summary">A Japanese sales professional visited Mumbai in 2019, was inspired by India’s tech ecosystem, and planned to expand his company’s business there — then the pandemic killed the deal. He left his job, taught himself HTML/CSS/JavaScript/WordPress, and eventually started his own company, Tech Bridge. The WordPress community gave him three things no tutorial could: knowledge of the latest updates and security practices, connections with skilled generous people, and the confidence to grow from coder to company founder. His dream: becoming a bridge between India and Japan through WordPress.</p>
+      <div class="meta"><span class="date">Apr 2026</span><span class="category-tag" style="background:#e11d48">Community &amp; Culture</span></div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/6wXfExPYNLI" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=6wXfExPYNLI" target="_blank">WordCamp Through the Viewfinder — Chiharu Nagatomi</a></h3>
+      <p class="summary">A UI designer and community photographer from Osaka shares how the 2011 Great East Japan Earthquake taught her the power of photographs — volunteers washed mud-covered photos to return lost memories. She applied that lesson to WordPress: “Code builds WordPress, community builds culture, and photographers keep the moment.” For 14 years she’s captured not just speakers on stage but volunteers’ hard work, natural smiles, and quiet moments of connection. Her hope: that someone someday says, “I came to WordCamp because I saw your photographs.”</p>
+      <div class="meta"><span class="date">Apr 2026</span><span class="category-tag" style="background:#e11d48">Community &amp; Culture</span></div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/aVymyM6klms" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=aVymyM6klms" target="_blank">Thank You to Everyone Who Loves Wapuu — Kazuko Kaneuchi</a></h3>
+      <p class="summary">The original designer of Wapuu — WordPress’s beloved mascot — tells its origin story. In 2010, the Japanese community asked her for a mascot; she was a UI designer who couldn’t write code, but realized design was her way to contribute. Wapuu was born at WordCamp Fukuoka 2011, and since then hundreds of local Wapuu variations have appeared worldwide — from London banks to India’s Amu and Apu. Her message: “You took my design, added your culture, and gave it new life. That’s what makes the WordPress community wonderful.”</p>
+      <div class="meta"><span class="date">Apr 2026</span><span class="category-tag" style="background:#e11d48">Community &amp; Culture</span></div>
+    </div>
+  </div>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/vVLzmhXmX1M" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=vVLzmhXmX1M" target="_blank">Panel: Journalism on the Open Web</a></h3>
+      <p class="summary">Three Indian journalists — a long-form writer, an independent reporter, and a citizen photojournalist — discuss the state of journalism. They debate speed vs. depth (all now prioritize depth over breaking news), the threat of corporate media control, and the creep of self-censorship. On AI: it’s useful for research and archival search, but street photography has nuances AI can never recreate. On WordPress: one panelist notes that platforms where people pay for factual content (financial news) prove audiences will value depth — the challenge is getting them to pay for other journalism too.</p>
+      <div class="meta"><span class="date">Apr 2026</span><span class="category-tag" style="background:#e11d48">Community &amp; Culture</span></div>
+    </div>
+  </div>
+
+
+  <h3 class="category-header">Career &amp; Personal Growth</h3>
+
+  <div class="video-card">
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/2Xv9qYE482E" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-info">
+      <h3><a href="https://www.youtube.com/watch?v=2Xv9qYE482E" target="_blank">Beyond Code: How Developers Can Truly Grow — Anh Tran</a></h3>
+      <p class="summary">The creator of Meta Box and Slim SEO (20 years in WordPress) describes two growth paths for developers: vertical (junior → senior → CTO) focused on technical mastery, and horizontal (developer → business owner) expanding into design, marketing, finance, and hiring. Key lessons: document everything so others can repeat your work, delegate even 5-minute bug fixes to train teammates (shifting from developer to collaborator), and recognize that at management level, you’re building products within a business ecosystem — not just writing code.</p>
+      <div class="meta"><span class="date">Apr 2026</span><span class="category-tag" style="background:#4f46e5">Career &amp; Personal Growth</span></div>
+    </div>
+  </div>
+
+</section>
+</div>
+
+<footer>
+  <p>Built from full video transcripts &middot; <a href="https://github.com/workhero-apps/conferences-synopses">View on GitHub</a></p>
+</footer>
+
+<script>
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+
+</body>
+</html>
