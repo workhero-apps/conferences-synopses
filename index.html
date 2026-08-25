@@ -232,12 +232,12 @@
   <p>AI-generated summaries from top tech conferences, built from full video transcripts.</p>
 </header>
 
-<nav class="tab-nav">
-  <button class="tab-btn active" onclick="switchTab('cwc', this)">Code w/ Claude 2026</button>
-  <button class="tab-btn" onclick="switchTab('decode', this)">DE{CODE} 2026</button>
-  <button class="tab-btn" onclick="switchTab('wca', this)">WordCamp Asia 2026</button>
-  <button class="tab-btn" onclick="switchTab('wceu', this)">WordCamp Europe 2026</button>
-  <button class="tab-btn" onclick="switchTab('wcus', this)">WordCamp US 2026</button>
+<nav class="tab-nav" aria-label="Conference selection">
+  <button class="tab-btn active" data-tab="cwc" onclick="switchTab('cwc', this)">Code w/ Claude 2026</button>
+  <button class="tab-btn" data-tab="decode" onclick="switchTab('decode', this)">DE{CODE} 2026</button>
+  <button class="tab-btn" data-tab="wca" onclick="switchTab('wca', this)">WordCamp Asia 2026</button>
+  <button class="tab-btn" data-tab="wceu" onclick="switchTab('wceu', this)">WordCamp Europe 2026</button>
+  <button class="tab-btn" data-tab="wcus" onclick="switchTab('wcus', this)">WordCamp US 2026</button>
 </nav>
 
 <div id="tab-cwc" class="tab-content active">
@@ -2191,13 +2191,43 @@
 </footer>
 
 <script>
-function switchTab(tab, btn) {
+const tabHashes = {
+  cwc: 'code-w-claude-2026',
+  decode: 'decode-2026',
+  wca: 'wordcamp-asia-2026',
+  wceu: 'wordcamp-europe-2026',
+  wcus: 'wordcamp-us-2026'
+};
+
+const hashTabs = Object.fromEntries(
+  Object.entries(tabHashes).map(([tab, hash]) => [hash, tab])
+);
+
+function activateTab(tab, { updateHash = false, scroll = false } = {}) {
+  const content = document.getElementById('tab-' + tab);
+  const button = document.querySelector(`.tab-btn[data-tab="${tab}"]`);
+  if (!content || !button) return;
+
   document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-  document.getElementById('tab-' + tab).classList.add('active');
-  btn.classList.add('active');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  content.classList.add('active');
+  button.classList.add('active');
+
+  if (updateHash) window.location.hash = tabHashes[tab];
+  if (scroll) window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+function switchTab(tab) {
+  activateTab(tab, { updateHash: true, scroll: true });
+}
+
+function activateTabFromHash() {
+  const tab = hashTabs[window.location.hash.slice(1)] || 'cwc';
+  activateTab(tab);
+}
+
+window.addEventListener('hashchange', activateTabFromHash);
+activateTabFromHash();
 </script>
 
 </body>
